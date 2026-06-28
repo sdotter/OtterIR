@@ -29,7 +29,7 @@ It is not a Supervisor add-on or a standalone ingress app.
 
 ## Installation
 
-1. Copy `custom_components/z2m_otter_ir` into your Home Assistant config folder.
+1. Copy `custom_components/z2m_otterir` into your Home Assistant config folder.
 2. Restart Home Assistant.
 3. Open `Settings -> Devices & Services -> Add Integration`.
 4. Add `OtterIR`.
@@ -37,7 +37,7 @@ It is not a Supervisor add-on or a standalone ingress app.
 Expected install path:
 
 ```text
-/config/custom_components/z2m_otter_ir
+/config/custom_components/z2m_otterir
 ```
 
 ## Features
@@ -65,7 +65,7 @@ Expected install path:
 OtterIR keeps its editable library data in:
 
 ```text
-/config/z2m_otter_ir/library.json
+/config/z2m_otterir/library.json
 ```
 
 That file is designed to stay readable and manually editable when needed.
@@ -73,7 +73,7 @@ That file is designed to stay readable and manually editable when needed.
 ## Repository Layout
 
 ```text
-custom_components/z2m_otter_ir/
+custom_components/z2m_otterir/
   brand/                      Branding assets
   frontend/                   Panel JavaScript and CSS
   __init__.py                 Integration setup and services
@@ -87,4 +87,3 @@ custom_components/z2m_otter_ir/
 - this repository intentionally excludes temporary files and local research notes
 - no hostnames, passwords, MQTT broker addresses, or runtime library data are tracked
 - live Home Assistant library data and entity registry changes stay on the Home Assistant system, not in this repository
-

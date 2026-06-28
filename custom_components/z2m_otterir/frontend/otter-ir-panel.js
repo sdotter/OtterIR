@@ -1,4 +1,4 @@
-const PANEL_CSS_URL = "/z2m_otter_ir_static/otter-ir-panel.css?v=1.3.27";
+const PANEL_CSS_URL = "/z2m_otterir_static/otter-ir-panel.css?v=1.3.27";
 
 class OtterIRPanel extends HTMLElement {
   constructor() {
@@ -113,7 +113,7 @@ class OtterIRPanel extends HTMLElement {
     this.render();
 
     try {
-      this._state = await this._hass.callWS({ type: "z2m_otter_ir/get_state" });
+      this._state = await this._hass.callWS({ type: "z2m_otterir/get_state" });
       if (!this._selectedDevice && this._state.devices.length) {
         this._selectedDevice = this._state.devices[0].friendly_name;
       }
@@ -638,12 +638,12 @@ class OtterIRPanel extends HTMLElement {
 
       if (action === "save-code-dialog") {
         await this._hass.callWS({
-          type: "z2m_otter_ir/update_code",
+          type: "z2m_otterir/update_code",
           current_code_id: this._editingCodeId,
           name: this._codeForm.name,
         });
         await this._hass.callWS({
-          type: "z2m_otter_ir/update_code_entity_id",
+          type: "z2m_otterir/update_code_entity_id",
           code_id: this._editingCodeId,
           friendly_name: this._codeForm.target_device,
           custom_entity_id: this._codeForm.custom_entity_id,
@@ -944,7 +944,7 @@ class OtterIRPanel extends HTMLElement {
     }
 
     const payload = {
-      type: "z2m_otter_ir/set_device_settings",
+      type: "z2m_otterir/set_device_settings",
       friendly_name: this._selectedDevice,
     };
     for (const field of fields) {
@@ -954,7 +954,7 @@ class OtterIRPanel extends HTMLElement {
   }
 
   async _callService(service, data) {
-    await this._hass.callService("z2m_otter_ir", service, data);
+    await this._hass.callService("z2m_otterir", service, data);
   }
 
   _renderCodeDialog() {
