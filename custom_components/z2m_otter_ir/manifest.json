@@ -1,0 +1,10 @@
+{
+  "domain": "z2m_otter_ir",
+  "name": "OtterIR",
+  "version": "1.0",
+  "homeassistant": "2026.4.0",
+  "requirements": [],
+  "dependencies": ["mqtt"],
+  "config_flow": true,
+  "iot_class": "local_push"
+}

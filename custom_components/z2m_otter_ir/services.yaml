@@ -1,0 +1,332 @@
+send_code:
+  fields:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    code:
+      required: true
+      selector:
+        text:
+          multiline: true
+    repeat:
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 10
+          mode: box
+start_learning:
+  fields:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+save_learned_code:
+  fields:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    name:
+      required: false
+      selector:
+        text:
+    code_id:
+      required: false
+      selector:
+        text:
+    library:
+      required: false
+      selector:
+        text:
+    device_type:
+      required: false
+      selector:
+        text:
+    manufacturer:
+      required: false
+      selector:
+        text:
+    model:
+      required: false
+      selector:
+        text:
+    tags:
+      required: false
+      selector:
+        text:
+    shared:
+      required: false
+      default: true
+      selector:
+        boolean:
+    overwrite:
+      required: false
+      default: false
+      selector:
+        boolean:
+send_saved_code:
+  fields:
+    code_id:
+      required: true
+      selector:
+        text:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    repeat:
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 10
+          mode: box
+delete_code:
+  fields:
+    code_id:
+      required: true
+      selector:
+        text:
+import_broadlink_code:
+  fields:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    name:
+      required: true
+      selector:
+        text:
+    code:
+      required: true
+      selector:
+        text:
+          multiline: true
+    code_id:
+      required: false
+      selector:
+        text:
+    library:
+      required: false
+      selector:
+        text:
+    device_type:
+      required: false
+      selector:
+        text:
+    manufacturer:
+      required: false
+      selector:
+        text:
+    model:
+      required: false
+      selector:
+        text:
+    tags:
+      required: false
+      selector:
+        text:
+    shared:
+      required: false
+      default: true
+      selector:
+        boolean:
+    overwrite:
+      required: false
+      default: false
+      selector:
+        boolean:
+import_csv_commands:
+  fields:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    import_source:
+      required: true
+      selector:
+        text:
+    library:
+      required: false
+      selector:
+        text:
+    device_type:
+      required: false
+      selector:
+        text:
+    manufacturer:
+      required: false
+      selector:
+        text:
+    model:
+      required: false
+      selector:
+        text:
+    tags:
+      required: false
+      selector:
+        text:
+    shared:
+      required: false
+      default: true
+      selector:
+        boolean:
+    overwrite:
+      required: false
+      default: false
+      selector:
+        boolean:
+import_smartir_json:
+  fields:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    import_source:
+      required: true
+      selector:
+        text:
+    library:
+      required: false
+      selector:
+        text:
+    device_type:
+      required: false
+      selector:
+        text:
+    manufacturer:
+      required: false
+      selector:
+        text:
+    model:
+      required: false
+      selector:
+        text:
+    tags:
+      required: false
+      selector:
+        text:
+    shared:
+      required: false
+      default: true
+      selector:
+        boolean:
+    overwrite:
+      required: false
+      default: false
+      selector:
+        boolean:
+import_flipper_source:
+  fields:
+    import_source:
+      required: true
+      selector:
+        text:
+    catalog_name:
+      required: false
+      selector:
+        text:
+    max_files:
+      required: false
+      default: 200
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box
+import_catalog_remote:
+  fields:
+    remote_id:
+      required: true
+      selector:
+        text:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    library:
+      required: false
+      selector:
+        text:
+    device_type:
+      required: false
+      selector:
+        text:
+    manufacturer:
+      required: false
+      selector:
+        text:
+    model:
+      required: false
+      selector:
+        text:
+    tags:
+      required: false
+      selector:
+        text:
+    shared:
+      required: false
+      default: true
+      selector:
+        boolean:
+    overwrite:
+      required: false
+      default: false
+      selector:
+        boolean:
+delete_catalog_source:
+  fields:
+    source_key:
+      required: true
+      selector:
+        text:
+set_entity_id_base:
+  fields:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
+    entity_id_base:
+      required: false
+      selector:
+        text:
