@@ -9,7 +9,6 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
-    ATTR_CODE,
     ATTR_CODE_HASH,
     ATTR_CODE_LENGTH,
     ATTR_FRIENDLY_NAME,
@@ -105,7 +104,6 @@ class Z2MIRLearnedEvent(EventEntity):
         self._trigger_event(
             EVENT_LEARNED,
             {
-                ATTR_CODE: record[ATTR_CODE],
                 ATTR_CODE_HASH: record[ATTR_CODE_HASH],
                 ATTR_CODE_LENGTH: record[ATTR_CODE_LENGTH],
                 ATTR_LEARNED_AT: record[ATTR_LEARNED_AT],

@@ -9,32 +9,18 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
-    ATTR_CODE,
     ATTR_CODE_HASH,
-    ATTR_CODE_ID,
-    ATTR_CODE_IDS,
     ATTR_CODE_LENGTH,
-    ATTR_CSV_SOURCE,
-    ATTR_ENTITY_ID_BASE,
     ATTR_ENCODING,
     ATTR_FRIENDLY_NAME,
-    ATTR_IMPORT_LIBRARY,
     ATTR_LEARNED_AT,
-    ATTR_PENDING_NAME,
-    ATTR_SAVED_COUNT,
-    ATTR_SAVED_NAMES,
-    ATTR_SMARTIR_SOURCE,
     ATTR_SOURCE,
     DOMAIN,
-    SIGNAL_IMPORT_FIELDS_UPDATED,
     SIGNAL_IR_CODE_LEARNED,
-    SIGNAL_LIBRARY_UPDATED,
     SIGNAL_NEW_IR_DEVICE,
-    SIGNAL_PENDING_NAME_UPDATED,
 )
 from .device_registry import build_device_info
 from .entity_ids import desired_entity_id, entity_id_base_for_device
-from .library import IRLibraryStore
 
 
 async def async_setup_entry(
@@ -99,34 +85,18 @@ class Z2MIRLastLearnedSensor(SensorEntity):
         self._refresh_state()
 
     async def async_added_to_hass(self) -> None:
-        """Subscribe to runtime updates."""
+        """Subscribe only to learned-code updates.
+
+        This sensor intentionally stays lightweight. The frontend panel gets its
+        richer state from the websocket API instead of pushing large attributes
+        into Home Assistant's global state machine on every library edit.
+        """
 
         self.async_on_remove(
             async_dispatcher_connect(
                 self.hass,
                 SIGNAL_IR_CODE_LEARNED.format(self._entry_id),
                 self._handle_learned_code,
-            )
-        )
-        self.async_on_remove(
-            async_dispatcher_connect(
-                self.hass,
-                SIGNAL_LIBRARY_UPDATED.format(self._entry_id),
-                self._handle_library_update,
-            )
-        )
-        self.async_on_remove(
-            async_dispatcher_connect(
-                self.hass,
-                SIGNAL_PENDING_NAME_UPDATED.format(self._entry_id),
-                self._handle_pending_name_update,
-            )
-        )
-        self.async_on_remove(
-            async_dispatcher_connect(
-                self.hass,
-                SIGNAL_IMPORT_FIELDS_UPDATED.format(self._entry_id),
-                self._handle_import_fields_update,
             )
         )
 
@@ -139,72 +109,30 @@ class Z2MIRLastLearnedSensor(SensorEntity):
         self._refresh_state()
         self.async_write_ha_state()
 
-    @callback
-    def _handle_library_update(self, payload: dict) -> None:
-        """Refresh the sensor when the library changes."""
-
-        target = payload.get(ATTR_FRIENDLY_NAME)
-        if target not in {None, self._friendly_name}:
-            return
-        self._refresh_state()
-        self.async_write_ha_state()
-
-    @callback
-    def _handle_pending_name_update(self, payload: dict) -> None:
-        """Refresh the sensor when the pending name changes."""
-
-        if payload.get(ATTR_FRIENDLY_NAME) != self._friendly_name:
-            return
-        self._refresh_state()
-        self.async_write_ha_state()
-
-    @callback
-    def _handle_import_fields_update(self, payload: dict) -> None:
-        """Refresh the sensor when import fields change."""
-
-        if payload.get(ATTR_FRIENDLY_NAME) != self._friendly_name:
-            return
-        self._refresh_state()
-        self.async_write_ha_state()
-
     def _refresh_state(self) -> None:
-        """Update the sensor state from runtime and persistent storage."""
+        """Update the sensor state from runtime and persistent storage.
+
+        Keep the published attributes intentionally small so Home Assistant does
+        not need to ship large IR payloads and saved-command lists to every
+        connected frontend session.
+        """
 
         entry_data = self.hass.data[DOMAIN][self._entry_id]
-        store: IRLibraryStore = entry_data["store"]
+        store = entry_data["store"]
         learned = entry_data["learned"].get(self._friendly_name) or store.get_last_learned(
             self._friendly_name
         )
-        saved_codes = store.list_codes(self._friendly_name)
 
         if learned is None:
             self._attr_native_value = "none"
-            self._attr_extra_state_attributes = {
-                ATTR_CSV_SOURCE: entry_data["csv_sources"].get(self._friendly_name, ""),
-                ATTR_ENTITY_ID_BASE: entry_data["entity_id_bases"].get(self._friendly_name, ""),
-                ATTR_IMPORT_LIBRARY: entry_data["import_libraries"].get(self._friendly_name, ""),
-                ATTR_PENDING_NAME: entry_data["pending_names"].get(self._friendly_name, ""),
-                ATTR_SAVED_COUNT: len(saved_codes),
-                ATTR_CODE_IDS: [record[ATTR_CODE_ID] for record in saved_codes],
-                ATTR_SAVED_NAMES: [record["name"] for record in saved_codes],
-                ATTR_SMARTIR_SOURCE: entry_data["smartir_sources"].get(self._friendly_name, ""),
-            }
+            self._attr_extra_state_attributes = {}
             return
 
         self._attr_native_value = learned[ATTR_CODE_HASH]
         self._attr_extra_state_attributes = {
-            ATTR_CODE: learned[ATTR_CODE],
             ATTR_CODE_HASH: learned[ATTR_CODE_HASH],
             ATTR_CODE_LENGTH: learned[ATTR_CODE_LENGTH],
-            ATTR_CSV_SOURCE: entry_data["csv_sources"].get(self._friendly_name, ""),
-            ATTR_ENTITY_ID_BASE: entry_data["entity_id_bases"].get(self._friendly_name, ""),
             ATTR_ENCODING: learned[ATTR_ENCODING],
-            ATTR_IMPORT_LIBRARY: entry_data["import_libraries"].get(self._friendly_name, ""),
             ATTR_LEARNED_AT: learned[ATTR_LEARNED_AT],
-            ATTR_PENDING_NAME: entry_data["pending_names"].get(self._friendly_name, ""),
-            ATTR_SAVED_COUNT: len(saved_codes),
-            ATTR_CODE_IDS: [record[ATTR_CODE_ID] for record in saved_codes],
-            ATTR_SAVED_NAMES: [record["name"] for record in saved_codes],
-            ATTR_SMARTIR_SOURCE: entry_data["smartir_sources"].get(self._friendly_name, ""),
             ATTR_SOURCE: learned[ATTR_SOURCE],
         }

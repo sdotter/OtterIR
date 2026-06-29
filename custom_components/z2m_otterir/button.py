@@ -8,6 +8,7 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
@@ -75,6 +76,7 @@ async def async_setup_entry(
     @callback
     def refresh_command_buttons(_: dict[str, Any] | None = None) -> None:
         desired_keys: set[str] = set()
+        desired_unique_ids: set[str] = set()
         new_entities: list[Z2MIRSavedCodeButton] = []
 
         # Shared commands are materialized once per compatible IR device, while
@@ -87,6 +89,9 @@ async def async_setup_entry(
 
                 key = _command_entity_key(record[ATTR_RECORD_UID], friendly_name)
                 desired_keys.add(key)
+                desired_unique_ids.add(
+                    command_button_unique_id(record[ATTR_RECORD_UID], friendly_name)
+                )
                 entity = command_entities.get(key)
                 if entity is None:
                     entity = Z2MIRSavedCodeButton(
@@ -107,6 +112,13 @@ async def async_setup_entry(
         for key in stale_keys:
             entity = command_entities.pop(key)
             hass.async_create_task(entity.async_remove(force_remove=True))
+
+        if data["devices"]:
+            _prune_stale_command_registry_entries(
+                hass=hass,
+                entry_id=entry.entry_id,
+                valid_unique_ids=desired_unique_ids,
+            )
 
         if new_entities:
             async_add_entities(new_entities)
@@ -234,7 +246,7 @@ class Z2MIRSavedCodeButton(ButtonEntity):
 
         self._record = record
         self._entry_data = entry_data
-        self._attr_name = record[ATTR_NAME]
+        self._attr_name = _display_name_for_record(record)
         self._attr_unique_id = command_button_unique_id(
             record[ATTR_RECORD_UID],
             self._target_friendly_name,
@@ -262,3 +274,47 @@ class Z2MIRSavedCodeButton(ButtonEntity):
             },
             blocking=True,
         )
+
+
+def _display_name_for_record(record: SavedCodeRecord) -> str:
+    """Return a Home Assistant-friendly display name for a saved command."""
+
+    name = str(record.get(ATTR_NAME) or "").strip() or "Saved command"
+    library = str(record.get(ATTR_LIBRARY) or "").strip()
+    if not library:
+        return name
+
+    lowered_name = name.lower()
+    lowered_library = library.lower()
+    if lowered_name == lowered_library:
+        return name
+
+    for separator in (".", ":", "-", "_", " ", "/"):
+        if lowered_name.startswith(f"{lowered_library}{separator}"):
+            return name
+
+    return f"{library} - {name}"
+
+
+def _prune_stale_command_registry_entries(
+    *,
+    hass: HomeAssistant,
+    entry_id: str,
+    valid_unique_ids: set[str],
+) -> None:
+    """Remove saved-command button entries that no longer map to real records."""
+
+    registry = er.async_get(hass)
+    for registry_entry in list(registry.entities.values()):
+        if registry_entry.platform != DOMAIN or registry_entry.domain != "button":
+            continue
+        if registry_entry.config_entry_id != entry_id:
+            continue
+
+        unique_id = str(registry_entry.unique_id or "")
+        if not unique_id.startswith(f"{DOMAIN}_saved_command_"):
+            continue
+        if unique_id in valid_unique_ids:
+            continue
+
+        registry.async_remove(registry_entry.entity_id)

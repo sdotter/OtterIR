@@ -1,4 +1,4 @@
-const PANEL_CSS_URL = "/z2m_otterir_static/otter-ir-panel.css?v=1.3.27";
+const PANEL_CSS_URL = "/z2m_otterir_static/otter-ir-panel.css?v=1.3.31";
 
 class OtterIRPanel extends HTMLElement {
   constructor() {
@@ -21,6 +21,10 @@ class OtterIRPanel extends HTMLElement {
     this._toastSeq = 0;
     this._toastTimers = new Map();
     this._deferredRender = false;
+    this._listenersAttached = false;
+    this._loadToken = 0;
+    this._resourcesActive = false;
+    this._focusOutTimer = null;
     this._learnStatus = {};
     this._saveStatus = {};
     this._state = {
@@ -47,36 +51,39 @@ class OtterIRPanel extends HTMLElement {
       custom_entity_id: false,
       target_device: "",
     };
+    this._boundClick = (event) => this._handleClick(event);
+    this._boundInput = (event) => this._handleInput(event);
+    this._boundChange = (event) => this._handleChange(event);
+    this._boundToggle = (event) => this._handleToggle(event);
+    this._boundFocusOut = () => {
+      if (this._focusOutTimer) {
+        window.clearTimeout(this._focusOutTimer);
+      }
+      this._focusOutTimer = window.setTimeout(() => {
+        this._focusOutTimer = null;
+        this._flushDeferredRender();
+      }, 0);
+    };
   }
 
   connectedCallback() {
-    this.render();
-    this.shadowRoot.addEventListener("click", (event) => this._handleClick(event));
-    this.shadowRoot.addEventListener("input", (event) => this._handleInput(event));
-    this.shadowRoot.addEventListener("change", (event) => this._handleChange(event));
-    this.shadowRoot.addEventListener("toggle", (event) => this._handleToggle(event), true);
-    this.shadowRoot.addEventListener("focusout", () => {
-      window.setTimeout(() => this._flushDeferredRender(), 0);
-    });
+    this._syncRouteRendering();
+  }
+
+  disconnectedCallback() {
+    this._releaseInactiveResources();
   }
 
   set hass(hass) {
     this._hass = hass;
-    if (!this._loaded && !this._loading) {
+    if (this._isActiveView() && !this._loaded && !this._loading) {
       this._load();
-      return;
     }
-    if (this._isEditingTextField()) {
-      this._deferredRender = true;
-      this._syncActionButtonStates();
-      return;
-    }
-    this.render();
   }
 
   set route(value) {
     this._route = value;
-    this.render();
+    this._syncRouteRendering();
   }
 
   get route() {
@@ -85,6 +92,7 @@ class OtterIRPanel extends HTMLElement {
 
   set panel(value) {
     this._panel = value;
+    this._syncRouteRendering();
   }
 
   get panel() {
@@ -97,7 +105,9 @@ class OtterIRPanel extends HTMLElement {
       return;
     }
     this._narrow = nextValue;
-    this.render();
+    if (this._isActiveView()) {
+      this.render();
+    }
   }
 
   get narrow() {
@@ -105,15 +115,20 @@ class OtterIRPanel extends HTMLElement {
   }
 
   async _load() {
-    if (!this._hass || this._loading) {
+    if (!this._hass || this._loading || !this._isActiveView()) {
       return;
     }
 
+    const loadToken = ++this._loadToken;
     this._loading = true;
     this.render();
 
     try {
-      this._state = await this._hass.callWS({ type: "z2m_otterir/get_state" });
+      const nextState = await this._hass.callWS({ type: "z2m_otterir/get_state" });
+      if (loadToken !== this._loadToken || !this._isActiveView()) {
+        return;
+      }
+      this._state = nextState;
       if (!this._selectedDevice && this._state.devices.length) {
         this._selectedDevice = this._state.devices[0].friendly_name;
       }
@@ -129,10 +144,16 @@ class OtterIRPanel extends HTMLElement {
       this._syncFormFromDevice();
       this._loaded = true;
     } catch (err) {
-      this._showToast(err?.message || String(err), "error");
+      if (loadToken === this._loadToken && this._isActiveView()) {
+        this._showToast(err?.message || String(err), "error");
+      }
     } finally {
-      this._loading = false;
-      this.render();
+      if (loadToken === this._loadToken) {
+        this._loading = false;
+      }
+      if (this._isActiveView()) {
+        this.render();
+      }
     }
   }
 
@@ -301,6 +322,111 @@ class OtterIRPanel extends HTMLElement {
     `;
 
     return this.shadowRoot.querySelector("[data-app-root]");
+  }
+
+  _attachListeners() {
+    if (this._listenersAttached) {
+      return;
+    }
+    this.shadowRoot.addEventListener("click", this._boundClick);
+    this.shadowRoot.addEventListener("input", this._boundInput);
+    this.shadowRoot.addEventListener("change", this._boundChange);
+    this.shadowRoot.addEventListener("toggle", this._boundToggle, true);
+    this.shadowRoot.addEventListener("focusout", this._boundFocusOut);
+    this._listenersAttached = true;
+  }
+
+  _detachListeners() {
+    if (!this._listenersAttached) {
+      return;
+    }
+    this.shadowRoot.removeEventListener("click", this._boundClick);
+    this.shadowRoot.removeEventListener("input", this._boundInput);
+    this.shadowRoot.removeEventListener("change", this._boundChange);
+    this.shadowRoot.removeEventListener("toggle", this._boundToggle, true);
+    this.shadowRoot.removeEventListener("focusout", this._boundFocusOut);
+    this._listenersAttached = false;
+  }
+
+  _panelPath() {
+    const rawPath =
+      this._panel?.url_path ||
+      this._panel?.config?.url_path ||
+      "z2m_otterir";
+    return `/${String(rawPath).replace(/^\/+/, "").toLowerCase()}`;
+  }
+
+  _isActiveView() {
+    const pathname = String(window.location?.pathname || "").toLowerCase();
+    const panelPath = this._panelPath();
+    return (
+      pathname === panelPath ||
+      pathname.startsWith(`${panelPath}/`) ||
+      pathname.includes(panelPath)
+    );
+  }
+
+  _clearInactiveView() {
+    if (this.shadowRoot) {
+      this.shadowRoot.innerHTML = "";
+    }
+  }
+
+  _releaseInactiveResources() {
+    if (
+      !this._resourcesActive &&
+      !this._loading &&
+      !this._loaded &&
+      !this._listenersAttached &&
+      !this._toastTimers.size &&
+      !this._focusOutTimer &&
+      !this.shadowRoot?.hasChildNodes()
+    ) {
+      return;
+    }
+
+    this._loadToken += 1;
+    this._loading = false;
+    this._loaded = false;
+    this._deferredRender = false;
+    this._codeDialogOpen = false;
+    this._editingCodeId = "";
+    this._state = {
+      devices: [],
+      codes: [],
+      catalog_sources: [],
+      catalog_remotes: [],
+    };
+    if (this._focusOutTimer) {
+      window.clearTimeout(this._focusOutTimer);
+      this._focusOutTimer = null;
+    }
+    for (const timer of this._toastTimers.values()) {
+      window.clearTimeout(timer);
+    }
+    this._toastTimers.clear();
+    this._toasts = [];
+    this._detachListeners();
+    this._clearInactiveView();
+    this._resourcesActive = false;
+  }
+
+  _syncRouteRendering() {
+    if (!this.isConnected) {
+      return;
+    }
+    if (!this._isActiveView()) {
+      this._releaseInactiveResources();
+      return;
+    }
+    this._ensureShell();
+    this._attachListeners();
+    this._resourcesActive = true;
+    if (!this._loaded && !this._loading && this._hass) {
+      this._load();
+      return;
+    }
+    this.render();
   }
 
   _slugify(value) {
@@ -1218,7 +1344,7 @@ class OtterIRPanel extends HTMLElement {
         const groupKey = this._groupKey(group);
         return `
           <details class="group-card" data-group-key="${this._escape(groupKey)}" ${
-            this._isGroupExpanded(groupKey, true) ? "open" : ""
+            this._isGroupExpanded(groupKey, false) ? "open" : ""
           }>
             <summary class="group-card__summary">
               <div class="group-card__header">
@@ -1276,7 +1402,7 @@ class OtterIRPanel extends HTMLElement {
         const remotes = this._catalogRemotesForSource(source.source_key);
         return `
           <details class="group-card" data-group-key="${this._escape(sourceKey)}" ${
-            this._isGroupExpanded(sourceKey, true) ? "open" : ""
+            this._isGroupExpanded(sourceKey, false) ? "open" : ""
           }>
             <summary class="group-card__summary">
               <div class="group-card__header">
@@ -1370,6 +1496,11 @@ class OtterIRPanel extends HTMLElement {
   }
 
   render() {
+    if (!this._isActiveView()) {
+      this._clearInactiveView();
+      return;
+    }
+
     const focusState = this._captureFocusState();
     const device = this._selectedDeviceData();
     const learnStatus = this._learnStatusForDevice(device);

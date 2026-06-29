@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from pathlib import Path
@@ -18,6 +19,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.helpers import entity_registry as er
 
 from .const import (
     ATTR_CATALOG_NAME,
@@ -77,7 +79,11 @@ from .const import (
     SIGNAL_PENDING_NAME_UPDATED,
 )
 from .device_registry import is_ir_device, normalize_device
-from .entity_ids import async_update_device_entity_ids, entity_id_base_for_device
+from .entity_ids import (
+    async_update_device_entity_ids,
+    command_button_unique_id,
+    entity_id_base_for_device,
+)
 from .flipper_catalog import (
     async_import_flipper_source as async_import_flipper_catalog_source,
     iter_supported_catalog_commands,
@@ -403,6 +409,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             DOMAIN,
         )
 
+    hass.async_create_task(_async_prune_stale_command_registry_entries(hass, entry))
+
     return True
 
 
@@ -435,6 +443,56 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload a config entry after options change."""
 
     await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def _async_prune_stale_command_registry_entries(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> None:
+    """Remove saved-command button registry rows that no longer map to stored codes."""
+
+    await asyncio.sleep(10)
+
+    entry_data = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if entry_data is None:
+        return
+
+    devices = entry_data.get("devices", {})
+    if not devices:
+        return
+
+    valid_unique_ids: set[str] = set()
+    for record in entry_data["store"].list_codes():
+        target_name = record.get(ATTR_FRIENDLY_NAME)
+        if target_name:
+            target_names = [target_name] if target_name in devices else []
+        else:
+            target_names = sorted(devices)
+
+        for friendly_name in target_names:
+            valid_unique_ids.add(
+                command_button_unique_id(record[ATTR_RECORD_UID], friendly_name)
+            )
+
+    registry = er.async_get(hass)
+    removed_count = 0
+    for registry_entry in list(registry.entities.values()):
+        if registry_entry.platform != DOMAIN or registry_entry.domain != "button":
+            continue
+        if registry_entry.config_entry_id != entry.entry_id:
+            continue
+
+        unique_id = str(registry_entry.unique_id or "")
+        if not unique_id.startswith(f"{DOMAIN}_saved_command_"):
+            continue
+        if unique_id in valid_unique_ids:
+            continue
+
+        registry.async_remove(registry_entry.entity_id)
+        removed_count += 1
+
+    if removed_count:
+        _LOGGER.info("Removed %s stale OtterIR saved-command entities", removed_count)
 
 
 @callback
