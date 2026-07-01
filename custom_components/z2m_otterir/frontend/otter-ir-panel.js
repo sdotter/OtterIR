@@ -1,4 +1,4 @@
-const PANEL_CSS_URL = "/z2m_otterir_static/otter-ir-panel.css?v=1.3.31";
+const PANEL_CSS_URL = "/z2m_otterir_static/otter-ir-panel.css?v=1.3.48";
 
 class OtterIRPanel extends HTMLElement {
   constructor() {
@@ -525,6 +525,8 @@ class OtterIRPanel extends HTMLElement {
       if (!groups.has(key)) {
         groups.set(key, {
           scope,
+          friendlyName: record.shared ? null : record.friendly_name || null,
+          isShared: record.shared,
           title: record.library,
           records: [],
         });
@@ -693,10 +695,21 @@ class OtterIRPanel extends HTMLElement {
     const codeId = button.dataset.codeId;
     const device = button.dataset.device;
     const scope = button.dataset.scope;
+    const library = button.dataset.library;
+    const groupFriendlyName = button.dataset.friendlyName || "";
     const remoteId = button.dataset.remoteId;
     const sourceKey = button.dataset.sourceKey;
     const targetDevice = button.dataset.targetDevice;
     const toastId = button.dataset.toastId;
+
+    if (action === "delete-library") {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    if (action === "rename-library") {
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     try {
       if (action === "refresh") {
@@ -820,7 +833,7 @@ class OtterIRPanel extends HTMLElement {
           shared: this._form.import_shared,
           overwrite: false,
         });
-        this._showToast("CSV or TSV import completed.");
+        this._showToast("List import completed.");
         await this._load();
         return;
       }
@@ -903,6 +916,54 @@ class OtterIRPanel extends HTMLElement {
         await this._callService("delete_code", { code_id: codeId });
         this._showToast("Code removed.");
         await this._load();
+        return;
+      }
+
+      if (action === "delete-library" && library) {
+        const label = `${library}`;
+        const isSharedLibrary = !groupFriendlyName;
+        const promptText = isSharedLibrary
+          ? `Delete the shared library "${label}" and all commands inside it?`
+          : `Delete the library "${label}" for "${groupFriendlyName}" and all commands inside it?`;
+        if (!window.confirm(promptText)) {
+          return;
+        }
+        const payload = {
+          library,
+          shared: isSharedLibrary,
+        };
+        if (!isSharedLibrary) {
+          payload.friendly_name = groupFriendlyName;
+        }
+        await this._callService("delete_library", payload);
+        this._showToast(
+          isSharedLibrary
+            ? `Shared library "${label}" removed.`
+            : `Library "${label}" removed from "${groupFriendlyName}".`
+        );
+        await this._load();
+        return;
+      }
+
+      if (action === "rename-library" && library) {
+        const currentName = `${library}`;
+        const nextName = window.prompt("Rename library", currentName);
+        if (nextName === null) {
+          return;
+        }
+        const cleanedName = String(nextName).trim();
+        if (!cleanedName || cleanedName === currentName) {
+          return;
+        }
+        await this._hass.callWS({
+          type: "z2m_otterir/rename_library",
+          library: currentName,
+          new_library: cleanedName,
+          friendly_name: groupFriendlyName || null,
+        });
+        this._showToast(`Library renamed to "${cleanedName}".`);
+        await this._load();
+        return;
       }
     } catch (err) {
       if (action === "learn" && this._selectedDevice) {
@@ -1354,6 +1415,16 @@ class OtterIRPanel extends HTMLElement {
                 </div>
                 <div class="group-card__summary-meta">
                   <span class="badge">${group.records.length}</span>
+                  <button class="theme-button group-action-button group-action-button--rename" data-action="rename-library" data-library="${this._escape(group.title)}" data-scope="${this._escape(group.scope)}" data-friendly-name="${this._escape(group.friendlyName || "")}" title="Rename library">
+                    <ha-icon class="group-action-button__icon" icon="mdi:pencil-outline"></ha-icon>
+                    <span class="group-action-button__label">Rename</span>
+                  </button>
+                  ${
+                    `<button class="theme-button danger group-action-button" data-action="delete-library" data-library="${this._escape(group.title)}" data-scope="${this._escape(group.scope)}" data-friendly-name="${this._escape(group.friendlyName || "")}" title="Delete library">
+                          <ha-icon class="group-action-button__icon" icon="mdi:trash-can-outline"></ha-icon>
+                          <span class="group-action-button__label">Delete</span>
+                        </button>`
+                  }
                   <ha-icon class="summary-chevron" icon="mdi:chevron-down"></ha-icon>
                 </div>
               </div>
@@ -1668,22 +1739,22 @@ class OtterIRPanel extends HTMLElement {
 
               <ha-card header="Quick Imports">
                 <div class="card-content">
-                  <p class="section-copy">Import a CSV/TSV list or a SmartIR JSON file straight into the selected library.</p>
+                  <p class="section-copy">Import a CSV/TSV list, a Markdown table, or a SmartIR JSON file straight into the selected library.</p>
                   <div class="field-grid">
                     <div class="import-field-stack">
                       ${this._renderLibraryField(
                         "Target library",
-                        `Imported commands from CSV/TSV and SmartIR JSON go into <strong>${this._escape(
-                          this._effectiveLibrary()
-                        )}</strong>.`
-                      )}
+                          `Imported commands from CSV/TSV, Markdown, and SmartIR JSON go into <strong>${this._escape(
+                           this._effectiveLibrary()
+                         )}</strong>.`
+                       )}
                       <label class="field">
-                        <span class="field-label">CSV or TSV source</span>
+                        <span class="field-label">CSV, TSV, or Markdown source</span>
                         <input
                         class="text-input"
                         data-field="csv_source"
                         type="text"
-                        placeholder="/config/my_ir_codes.csv or https://..."
+                        placeholder="/config/my_ir_codes.csv, /config/my_ir_codes.md, or https://..."
                       />
                       </label>
                       <label class="field">
@@ -1704,7 +1775,7 @@ class OtterIRPanel extends HTMLElement {
                   <div class="form-actions">
                     <button class="theme-button" data-action="import-csv" ${
                       !hasDevice || !this._form.csv_source.trim() ? "disabled" : ""
-                    }>Import CSV or TSV</button>
+                    }>Import CSV, TSV, or Markdown</button>
                     <button class="theme-button" data-action="import-smartir" ${
                       !hasDevice || !this._form.smartir_source.trim() ? "disabled" : ""
                     }>Import SmartIR JSON</button>

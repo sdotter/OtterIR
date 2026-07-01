@@ -107,6 +107,25 @@ delete_code:
       required: true
       selector:
         text:
+delete_library:
+  fields:
+    library:
+      required: true
+      selector:
+        text:
+    shared:
+      required: false
+      default: true
+      selector:
+        boolean:
+    friendly_name:
+      required: false
+      selector:
+        text:
+    entity_id:
+      required: false
+      selector:
+        entity:
 import_broadlink_code:
   fields:
     friendly_name:
@@ -174,6 +193,7 @@ import_csv_commands:
       required: true
       selector:
         text:
+      example: "/config/my_ir_codes.csv, /config/my_ir_codes.tsv, /config/my_ir_codes.md"
     library:
       required: false
       selector:

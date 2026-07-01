@@ -24,6 +24,7 @@ from .const import (
     ATTR_ENTITY_ID_BASE,
     ATTR_FRIENDLY_NAME,
     ATTR_IMPORT_LIBRARY,
+    ATTR_LIBRARY,
     ATTR_NAME,
     ATTR_PENDING_NAME,
     ATTR_RECORD_UID,
@@ -48,6 +49,7 @@ def async_register_ws_api(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, websocket_set_device_settings)
     websocket_api.async_register_command(hass, websocket_update_code)
     websocket_api.async_register_command(hass, websocket_update_code_entity_id)
+    websocket_api.async_register_command(hass, websocket_rename_library)
     hass.data[WS_REGISTERED_KEY] = True
 
 
@@ -274,6 +276,63 @@ async def websocket_update_code_entity_id(
 
     except HomeAssistantError as err:
         connection.send_error(msg["id"], "update_code_entity_id_failed", str(err))
+        return
+
+    connection.send_result(
+        msg["id"],
+        _build_state(hass, entry_id, entry_data),
+    )
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "z2m_otterir/rename_library",
+        vol.Required(ATTR_LIBRARY): str,
+        vol.Required("new_library"): str,
+        vol.Optional(ATTR_FRIENDLY_NAME): vol.Any(str, None),
+    }
+)
+@websocket_api.async_response
+async def websocket_rename_library(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Rename one shared or device-specific library group."""
+
+    try:
+        entry_id, entry_data = _default_entry_data(hass)
+        store: IRLibraryStore = entry_data["store"]
+        library = str(msg[ATTR_LIBRARY]).strip()
+        new_library = str(msg["new_library"]).strip()
+        friendly_name = msg.get(ATTR_FRIENDLY_NAME)
+        if friendly_name is not None:
+            friendly_name = str(friendly_name).strip()
+
+        try:
+            renamed = await store.async_rename_library(
+                library,
+                new_library,
+                friendly_name=friendly_name,
+            )
+        except ValueError as err:
+            raise HomeAssistantError(str(err)) from err
+
+        if renamed == 0:
+            scope_name = "shared library" if friendly_name is None else f"library for '{friendly_name}'"
+            raise HomeAssistantError(f"No saved commands were found in {scope_name} '{library}'")
+
+        async_dispatcher_send(
+            hass,
+            SIGNAL_LIBRARY_UPDATED.format(entry_id),
+            {
+                ATTR_FRIENDLY_NAME: friendly_name,
+                ATTR_LIBRARY: new_library,
+            },
+        )
+
+    except HomeAssistantError as err:
+        connection.send_error(msg["id"], "rename_library_failed", str(err))
         return
 
     connection.send_result(

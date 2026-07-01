@@ -547,6 +547,59 @@ class IRLibraryStore:
         await self.async_save()
         return True
 
+    async def async_delete_library(
+        self,
+        library: str,
+        *,
+        friendly_name: str | None = None,
+    ) -> int:
+        """Delete all saved codes from a specific library/scope."""
+
+        deleted_ids = [
+            code_id
+            for code_id, record in self._data["codes"].items()
+            if record.get(ATTR_LIBRARY) == library
+            and record.get(ATTR_FRIENDLY_NAME) == friendly_name
+        ]
+        if not deleted_ids:
+            return 0
+
+        for code_id in deleted_ids:
+            del self._data["codes"][code_id]
+
+        await self.async_save()
+        return len(deleted_ids)
+
+    async def async_rename_library(
+        self,
+        library: str,
+        new_library: str,
+        *,
+        friendly_name: str | None = None,
+    ) -> int:
+        """Rename all saved codes from one library/scope to another library name."""
+
+        cleaned_new_library = str(new_library).strip()
+        if not cleaned_new_library:
+            raise ValueError("Library name cannot be empty")
+
+        updated_count = 0
+        for record in self._data["codes"].values():
+            if record.get(ATTR_LIBRARY) != library:
+                continue
+            if record.get(ATTR_FRIENDLY_NAME) != friendly_name:
+                continue
+
+            record[ATTR_LIBRARY] = cleaned_new_library
+            record["updated_at"] = utcnow_iso()
+            updated_count += 1
+
+        if updated_count == 0:
+            return 0
+
+        await self.async_save()
+        return updated_count
+
     async def async_replace_catalog_source(
         self,
         source_record: CatalogSourceRecord,

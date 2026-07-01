@@ -43,6 +43,7 @@ from .const import (
     ATTR_PENDING_NAME,
     ATTR_REPEAT,
     ATTR_REMOTE_ID,
+    ATTR_RECORD_UID,
     ATTR_TAGS,
     ATTR_SHARED,
     ATTR_SMARTIR_SOURCE,
@@ -61,6 +62,7 @@ from .const import (
     PLATFORMS,
     SERVICE_DELETE_CODE,
     SERVICE_DELETE_CATALOG_SOURCE,
+    SERVICE_DELETE_LIBRARY,
     SERVICE_IMPORT_CATALOG_REMOTE,
     SERVICE_IMPORT_CSV_COMMANDS,
     SERVICE_IMPORT_FLIPPER_SOURCE,
@@ -148,6 +150,14 @@ SEND_SAVED_CODE_SCHEMA = vol.Schema(
 DELETE_CODE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CODE_ID): cv.string,
+    }
+)
+
+DELETE_LIBRARY_SCHEMA = vol.Schema(
+    {
+        **_target_fields(),
+        vol.Required(ATTR_LIBRARY): cv.string,
+        vol.Optional(ATTR_SHARED, default=True): bool,
     }
 )
 
@@ -629,6 +639,41 @@ def _async_register_services(hass: HomeAssistant) -> None:
             {ATTR_FRIENDLY_NAME: record.get(ATTR_FRIENDLY_NAME)},
         )
 
+    async def async_delete_library(call: ServiceCall) -> None:
+        friendly_name: str | None = None
+        entry_data = _default_entry_data(hass)
+        if not call.data[ATTR_SHARED]:
+            friendly_name, _, entry_data = _resolve_target_device(
+                hass,
+                friendly_name=call.data.get(ATTR_FRIENDLY_NAME),
+                entity_id=call.data.get(CONF_ENTITY_ID),
+            )
+
+        store: IRLibraryStore = entry_data["store"]
+        record_friendly_name = _record_target_name(friendly_name, call.data[ATTR_SHARED])
+        deleted = await store.async_delete_library(
+            call.data[ATTR_LIBRARY],
+            friendly_name=record_friendly_name,
+        )
+        if deleted == 0:
+            scope_name = (
+                "shared library"
+                if record_friendly_name is None
+                else f"library for '{record_friendly_name}'"
+            )
+            raise HomeAssistantError(
+                f"No saved commands were found in {scope_name} '{call.data[ATTR_LIBRARY]}'"
+            )
+
+        async_dispatcher_send(
+            hass,
+            SIGNAL_LIBRARY_UPDATED.format(_entry_id_for_data(hass, entry_data)),
+            {
+                ATTR_FRIENDLY_NAME: record_friendly_name,
+                ATTR_COMMANDS_IMPORTED: deleted,
+            },
+        )
+
     async def async_import_broadlink_code(call: ServiceCall) -> None:
         friendly_name: str | None = None
         device: dict[str, Any] | None = None
@@ -965,6 +1010,11 @@ def _async_register_services(hass: HomeAssistant) -> None:
         SEND_SAVED_CODE_SCHEMA,
     )
     register_service(SERVICE_DELETE_CODE, async_delete_code, DELETE_CODE_SCHEMA)
+    register_service(
+        SERVICE_DELETE_LIBRARY,
+        async_delete_library,
+        DELETE_LIBRARY_SCHEMA,
+    )
     register_service(
         SERVICE_IMPORT_BROADLINK_CODE,
         async_import_broadlink_code,
@@ -1501,11 +1551,11 @@ def _device_type_from_source(source: str) -> str:
 
 
 def _validate_csv_tsv_source(source: str) -> None:
-    """Require a real CSV or TSV source path/URL."""
+    """Require a real CSV, TSV, or Markdown source path/URL."""
 
     normalized_source = _normalize_remote_source_url(source) if _is_remote_source(source) else source
     suffix = _path_from_source(normalized_source).suffix.lower()
-    if suffix not in {".csv", ".tsv"}:
+    if suffix not in {".csv", ".tsv", ".md", ".markdown"}:
         raise HomeAssistantError(
-            "CSV import only accepts real .csv or .tsv sources"
+            "List import only accepts real .csv, .tsv, .md, or .markdown sources"
         )

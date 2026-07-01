@@ -56,6 +56,7 @@ ATTR_URL = "url"
 EVENT_LEARNED = "learned"
 
 SERVICE_DELETE_CODE = "delete_code"
+SERVICE_DELETE_LIBRARY = "delete_library"
 SERVICE_DELETE_CATALOG_SOURCE = "delete_catalog_source"
 SERVICE_SET_ENTITY_ID_BASE = "set_entity_id_base"
 SERVICE_IMPORT_CATALOG_REMOTE = "import_catalog_remote"

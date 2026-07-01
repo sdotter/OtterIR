@@ -50,7 +50,7 @@ async def async_register_panel(hass: HomeAssistant) -> None:
                     "name": PANEL_COMPONENT,
                     "embed_iframe": False,
                     "trust_external": False,
-                    "js_url": f"{STATIC_URL_BASE}/{STATIC_ENTRYPOINT}?v=1.3.31",
+                    "js_url": f"{STATIC_URL_BASE}/{STATIC_ENTRYPOINT}?v=1.3.48",
                 }
             },
             require_admin=True,
