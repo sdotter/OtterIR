@@ -29,6 +29,19 @@ It is not a Supervisor add-on or a standalone ingress app.
 
 ## Installation
 
+### HACS
+
+1. Open `HACS -> Integrations`.
+2. Open the top-right menu and choose `Custom repositories`.
+3. Add the repository URL for `sdotter/OtterIR`.
+4. Select category `Integration`.
+5. Install `OtterIR` from HACS.
+6. Restart Home Assistant.
+7. Open `Settings -> Devices & Services -> Add Integration`.
+8. Add `OtterIR`.
+
+### Manual
+
 1. Copy `custom_components/z2m_otterir` into your Home Assistant config folder.
 2. Restart Home Assistant.
 3. Open `Settings -> Devices & Services -> Add Integration`.
