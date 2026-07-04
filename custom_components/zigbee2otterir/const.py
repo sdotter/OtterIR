@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-DOMAIN = "z2m_otterir"
+DOMAIN = "zigbee2otterir"
 
 DEFAULT_BASE_TOPIC = "zigbee2mqtt"
 DEFAULT_DISCOVERY_PREFIX = "homeassistant"
@@ -69,12 +69,12 @@ SERVICE_SEND_CODE = "send_code"
 SERVICE_SEND_SAVED_CODE = "send_saved_code"
 SERVICE_START_LEARNING = "start_learning"
 
-SIGNAL_NEW_IR_DEVICE = "z2m_otterir_new_ir_device_{}"
-SIGNAL_IR_CODE_LEARNED = "z2m_otterir_ir_code_learned_{}"
-SIGNAL_LIBRARY_UPDATED = "z2m_otterir_library_updated_{}"
-SIGNAL_CATALOG_UPDATED = "z2m_otterir_catalog_updated_{}"
-SIGNAL_IMPORT_FIELDS_UPDATED = "z2m_otterir_import_fields_updated_{}"
-SIGNAL_PENDING_NAME_UPDATED = "z2m_otterir_pending_name_updated_{}"
+SIGNAL_NEW_IR_DEVICE = "zigbee2otterir_new_ir_device_{}"
+SIGNAL_IR_CODE_LEARNED = "zigbee2otterir_ir_code_learned_{}"
+SIGNAL_LIBRARY_UPDATED = "zigbee2otterir_library_updated_{}"
+SIGNAL_CATALOG_UPDATED = "zigbee2otterir_catalog_updated_{}"
+SIGNAL_IMPORT_FIELDS_UPDATED = "zigbee2otterir_import_fields_updated_{}"
+SIGNAL_PENDING_NAME_UPDATED = "zigbee2otterir_pending_name_updated_{}"
 
 STORAGE_VERSION = 1
 STORAGE_KEY = f"{DOMAIN}_library"

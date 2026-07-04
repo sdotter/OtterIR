@@ -1,5 +1,5 @@
 {
-  "domain": "z2m_otterir",
+  "domain": "zigbee2otterir",
   "name": "OtterIR",
   "version": "1.0",
   "homeassistant": "2026.4.0",

@@ -1,4 +1,4 @@
-const PANEL_CSS_URL = "/z2m_otterir_static/otter-ir-panel.css?v=1.3.48";
+const PANEL_CSS_URL = "/zigbee2otterir_static/otter-ir-panel.css?v=1.3.48";
 
 class OtterIRPanel extends HTMLElement {
   constructor() {
@@ -124,7 +124,7 @@ class OtterIRPanel extends HTMLElement {
     this.render();
 
     try {
-      const nextState = await this._hass.callWS({ type: "z2m_otterir/get_state" });
+      const nextState = await this._hass.callWS({ type: "zigbee2otterir/get_state" });
       if (loadToken !== this._loadToken || !this._isActiveView()) {
         return;
       }
@@ -352,7 +352,7 @@ class OtterIRPanel extends HTMLElement {
     const rawPath =
       this._panel?.url_path ||
       this._panel?.config?.url_path ||
-      "z2m_otterir";
+      "zigbee2otterir";
     return `/${String(rawPath).replace(/^\/+/, "").toLowerCase()}`;
   }
 
@@ -777,12 +777,12 @@ class OtterIRPanel extends HTMLElement {
 
       if (action === "save-code-dialog") {
         await this._hass.callWS({
-          type: "z2m_otterir/update_code",
+          type: "zigbee2otterir/update_code",
           current_code_id: this._editingCodeId,
           name: this._codeForm.name,
         });
         await this._hass.callWS({
-          type: "z2m_otterir/update_code_entity_id",
+          type: "zigbee2otterir/update_code_entity_id",
           code_id: this._editingCodeId,
           friendly_name: this._codeForm.target_device,
           custom_entity_id: this._codeForm.custom_entity_id,
@@ -956,7 +956,7 @@ class OtterIRPanel extends HTMLElement {
           return;
         }
         await this._hass.callWS({
-          type: "z2m_otterir/rename_library",
+          type: "zigbee2otterir/rename_library",
           library: currentName,
           new_library: cleanedName,
           friendly_name: groupFriendlyName || null,
@@ -1131,7 +1131,7 @@ class OtterIRPanel extends HTMLElement {
     }
 
     const payload = {
-      type: "z2m_otterir/set_device_settings",
+      type: "zigbee2otterir/set_device_settings",
       friendly_name: this._selectedDevice,
     };
     for (const field of fields) {
@@ -1141,7 +1141,7 @@ class OtterIRPanel extends HTMLElement {
   }
 
   async _callService(service, data) {
-    await this._hass.callService("z2m_otterir", service, data);
+    await this._hass.callService("zigbee2otterir", service, data);
   }
 
   _renderCodeDialog() {

@@ -53,7 +53,7 @@ def async_register_ws_api(hass: HomeAssistant) -> None:
     hass.data[WS_REGISTERED_KEY] = True
 
 
-@websocket_api.websocket_command({vol.Required("type"): "z2m_otterir/get_state"})
+@websocket_api.websocket_command({vol.Required("type"): "zigbee2otterir/get_state"})
 @websocket_api.async_response
 async def websocket_get_state(
     hass: HomeAssistant,
@@ -78,7 +78,7 @@ async def websocket_get_state(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "z2m_otterir/set_device_settings",
+        vol.Required("type"): "zigbee2otterir/set_device_settings",
         vol.Required(ATTR_FRIENDLY_NAME): str,
         vol.Optional(ATTR_PENDING_NAME): str,
         vol.Optional(ATTR_IMPORT_LIBRARY): str,
@@ -166,7 +166,7 @@ async def websocket_set_device_settings(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "z2m_otterir/update_code",
+        vol.Required("type"): "zigbee2otterir/update_code",
         vol.Required("current_code_id"): str,
         vol.Optional(ATTR_NAME): str,
     }
@@ -218,7 +218,7 @@ async def websocket_update_code(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "z2m_otterir/update_code_entity_id",
+        vol.Required("type"): "zigbee2otterir/update_code_entity_id",
         vol.Required(ATTR_CODE_ID): str,
         vol.Required(ATTR_FRIENDLY_NAME): str,
         vol.Optional("custom_entity_id"): bool,
@@ -286,7 +286,7 @@ async def websocket_update_code_entity_id(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "z2m_otterir/rename_library",
+        vol.Required("type"): "zigbee2otterir/rename_library",
         vol.Required(ATTR_LIBRARY): str,
         vol.Required("new_library"): str,
         vol.Optional(ATTR_FRIENDLY_NAME): vol.Any(str, None),

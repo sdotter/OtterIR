@@ -42,7 +42,7 @@ It is not a Supervisor add-on or a standalone ingress app.
 
 ### Manual
 
-1. Copy `custom_components/z2m_otterir` into your Home Assistant config folder.
+1. Copy `custom_components/zigbee2otterir` into your Home Assistant config folder.
 2. Restart Home Assistant.
 3. Open `Settings -> Devices & Services -> Add Integration`.
 4. Add `OtterIR`.
@@ -50,7 +50,7 @@ It is not a Supervisor add-on or a standalone ingress app.
 Expected install path:
 
 ```text
-/config/custom_components/z2m_otterir
+/config/custom_components/zigbee2otterir
 ```
 
 ## Features
@@ -78,7 +78,7 @@ Expected install path:
 OtterIR keeps its editable library data in:
 
 ```text
-/config/z2m_otterir/library.json
+/config/zigbee2otterir/library.json
 ```
 
 That file is designed to stay readable and manually editable when needed.
@@ -86,7 +86,7 @@ That file is designed to stay readable and manually editable when needed.
 ## Repository Layout
 
 ```text
-custom_components/z2m_otterir/
+custom_components/zigbee2otterir/
   brand/                      Branding assets
   frontend/                   Panel JavaScript and CSS
   __init__.py                 Integration setup and services
