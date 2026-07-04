@@ -1,7 +1,10 @@
 {
   "domain": "zigbee2otterir",
   "name": "OtterIR",
-  "version": "1.0",
+  "version": "1.0.0",
+  "documentation": "https://github.com/sdotter/OtterIR#readme",
+  "issue_tracker": "https://github.com/sdotter/OtterIR/issues",
+  "codeowners": ["@sdotter"],
   "homeassistant": "2026.4.0",
   "requirements": [],
   "dependencies": ["mqtt"],
