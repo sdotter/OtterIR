@@ -1,12 +1,12 @@
 {
   "domain": "zigbee2otterir",
   "name": "OtterIR",
-  "version": "1.0.0",
-  "documentation": "https://github.com/sdotter/OtterIR#readme",
-  "issue_tracker": "https://github.com/sdotter/OtterIR/issues",
   "codeowners": ["@sdotter"],
-  "requirements": [],
-  "dependencies": ["http", "mqtt"],
   "config_flow": true,
-  "iot_class": "local_push"
+  "dependencies": ["http", "mqtt"],
+  "documentation": "https://github.com/sdotter/OtterIR#readme",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/sdotter/OtterIR/issues",
+  "requirements": [],
+  "version": "1.0.0"
 }
