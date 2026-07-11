@@ -1,4 +1,4 @@
-# Personal OtterIR Library
+# Custom OtterIR Library
 
 This folder contains a snapshot of the editable OtterIR library file from:
 
