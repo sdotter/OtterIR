@@ -576,29 +576,49 @@ class IRLibraryStore:
         new_library: str,
         *,
         friendly_name: str | None = None,
-    ) -> int:
-        """Rename all saved codes from one library/scope to another library name."""
+    ) -> dict[str, SavedCodeRecord]:
+        """Rename a library/scope and rebuild each command id with the new name."""
 
         cleaned_new_library = str(new_library).strip()
         if not cleaned_new_library:
             raise ValueError("Library name cannot be empty")
 
-        updated_count = 0
-        for record in self._data["codes"].values():
+        matching_records: list[tuple[str, SavedCodeRecord]] = []
+        for code_id, record in self._data["codes"].items():
             if record.get(ATTR_LIBRARY) != library:
                 continue
             if record.get(ATTR_FRIENDLY_NAME) != friendly_name:
                 continue
+            matching_records.append((code_id, record))
 
-            record[ATTR_LIBRARY] = cleaned_new_library
-            record["updated_at"] = utcnow_iso()
-            updated_count += 1
+        if not matching_records:
+            return {}
 
-        if updated_count == 0:
-            return 0
+        old_code_ids = {code_id for code_id, _ in matching_records}
+        occupied_code_ids = set(self._data["codes"]) - old_code_ids
+        assigned_code_ids: set[str] = set()
+        updated_by_old_id: dict[str, SavedCodeRecord] = {}
+        now = utcnow_iso()
+
+        for old_code_id, record in matching_records:
+            updated = deepcopy(record)
+            updated[ATTR_LIBRARY] = cleaned_new_library
+            updated[ATTR_CODE_ID] = _next_library_code_id(
+                cleaned_new_library,
+                updated[ATTR_NAME],
+                occupied_code_ids | assigned_code_ids,
+            )
+            updated["updated_at"] = now
+            assigned_code_ids.add(updated[ATTR_CODE_ID])
+            updated_by_old_id[old_code_id] = updated
+
+        for old_code_id in old_code_ids:
+            del self._data["codes"][old_code_id]
+        for updated in updated_by_old_id.values():
+            self._data["codes"][updated[ATTR_CODE_ID]] = updated
 
         await self.async_save()
-        return updated_count
+        return updated_by_old_id
 
     async def async_replace_catalog_source(
         self,
@@ -1309,3 +1329,20 @@ def _safe_int(value: Any) -> int | None:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _next_library_code_id(
+    library: str,
+    name: str,
+    occupied_code_ids: set[str],
+) -> str:
+    """Return a code id for a command after its library name changes."""
+
+    base = f"{slugify(library)}_{slugify(name)}"
+    if base not in occupied_code_ids:
+        return base
+
+    suffix = 2
+    while f"{base}_{suffix}" in occupied_code_ids:
+        suffix += 1
+    return f"{base}_{suffix}"

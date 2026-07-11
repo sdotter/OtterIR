@@ -318,9 +318,18 @@ async def websocket_rename_library(
         except ValueError as err:
             raise HomeAssistantError(str(err)) from err
 
-        if renamed == 0:
+        if not renamed:
             scope_name = "shared library" if friendly_name is None else f"library for '{friendly_name}'"
             raise HomeAssistantError(f"No saved commands were found in {scope_name} '{library}'")
+
+        try:
+            _update_command_entity_ids_for_records(
+                hass,
+                entry_data,
+                renamed.values(),
+            )
+        except ValueError as err:
+            raise HomeAssistantError(str(err)) from err
 
         async_dispatcher_send(
             hass,
@@ -328,6 +337,10 @@ async def websocket_rename_library(
             {
                 ATTR_FRIENDLY_NAME: friendly_name,
                 ATTR_LIBRARY: new_library,
+                "renamed_code_ids": {
+                    old_code_id: record[ATTR_CODE_ID]
+                    for old_code_id, record in renamed.items()
+                },
             },
         )
 
@@ -470,6 +483,35 @@ def _code_target_devices(
     if record_target:
         return [record_target] if record_target in entry_data["devices"] else []
     return sorted(entry_data["devices"])
+
+
+def _update_command_entity_ids_for_records(
+    hass: HomeAssistant,
+    entry_data: dict[str, Any],
+    records: Any,
+) -> None:
+    """Rename existing saved-command button entities after code ids change."""
+
+    registry = er.async_get(hass)
+    for record in records:
+        for friendly_name in _code_target_devices(entry_data, record):
+            current_entity_id = current_command_entity_id(
+                hass,
+                record_uid=record[ATTR_RECORD_UID],
+                friendly_name=friendly_name,
+            )
+            if current_entity_id is None:
+                continue
+
+            new_entity_id = desired_command_entity_id(
+                entry_data,
+                friendly_name,
+                record[ATTR_CODE_ID],
+            )
+            if current_entity_id == new_entity_id:
+                continue
+
+            registry.async_update_entity(current_entity_id, new_entity_id=new_entity_id)
 
 
 def _serialize_catalog_sources(store: IRLibraryStore) -> list[dict[str, Any]]:
