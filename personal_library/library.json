@@ -1,0 +1,320 @@
+{
+  "version": 1,
+  "catalogs": {
+    "sources": {
+      "flipper_github_36ed5da79b": {
+        "source_key": "flipper_github_36ed5da79b",
+        "source_name": "Lucaslhm/Flipper-IRDB / heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir",
+        "origin_kind": "github_file",
+        "source": "https://raw.githubusercontent.com/Lucaslhm/Flipper-IRDB/refs/heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir",
+        "remote_count": 1,
+        "truncated": false,
+        "metadata": {},
+        "updated_at": "2026-07-11T15:51:48.440356+00:00"
+      }
+    },
+    "remotes": {
+      "flipper_github_36ed5da79b": [
+        {
+          "remote_id": "flipper_github_36ed5da79b_4daafe852b",
+          "source_key": "flipper_github_36ed5da79b",
+          "source_name": "Lucaslhm/Flipper-IRDB / heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir",
+          "origin_kind": "github_file",
+          "origin_url": "https://raw.githubusercontent.com/Lucaslhm/Flipper-IRDB/refs/heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir",
+          "relative_path": "heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir",
+          "category": "heads",
+          "brand": "main",
+          "model": "Ansio_Fan_30inch_Tower",
+          "display_name": "Ansio Fan 30inch Tower",
+          "manufacturer": "main",
+          "device_type": "generic",
+          "library_hint": "ansio_fan_30inch_tower",
+          "command_count": 5,
+          "supported_command_count": 5,
+          "unsupported_command_count": 0,
+          "preview_commands": [
+            "Power",
+            "Timer",
+            "Fan_Mode",
+            "Fan_Speed",
+            "Oscillate"
+          ],
+          "commands": [
+            {
+              "name": "Power",
+              "entry_type": "raw",
+              "protocol": null,
+              "encoding": "tuya_raw_base64",
+              "code": "H0AjfRE2Ar0GHQIZAj8CEgI8AhYCOAIZAjUCHAI8AhUCHzkCGQI1AhwCPAKaBjYCoQY5ArgGIgKaBjYCoQY5Ap4GHzwCmwY1AqIGOAKeBjwCFQI5AhkCNQIcAjwCFQI5AhgCHzYCHAI8AhQCOgIYAjYCoAY6ApwGPgKzBh0CoAY6Ap0GHz0CmQY3AqAGOgKdBj0CFAI6AhgCNgIbAj0CFAI6AhcCHzcCGgI+AhMCOwIWAjgCnwY7ApsGNQK9Bh0CnwY7ApwGHT4CmAY4AtotOSOvCD4C//8/I6gIOgL//zwjqwg3Ag==",
+              "supported": true,
+              "frequency": 38000,
+              "duty_cycle": "0.330000"
+            },
+            {
+              "name": "Timer",
+              "entry_type": "raw",
+              "protocol": null,
+              "encoding": "tuya_raw_base64",
+              "code": "H0EjfRFAApcGOQI0AiQCEwI7AhYCOAIZAjUCHAI8AhUCHzkCGAI2AhsCPQKZBjcCoAY6Ap0GPQKZBjcCoAY6Ap0GHz0CmgY2AqEGOQKeBjwCMAIeAp4GPAIwAh4CGQI1AhwCHzwCFQI5AhgCNgIbAj0CmQY3AjUCIwKZBjcCoAY6ApwGHz4CmQY3AqAGOgKdBj0CLwIfAp0GPQIvAh8CGAI2AhsCHz0CFAI6AhcCNwIaAj4CmAY4AjQCJAKYBjgCnwY8ApsGHT8CmAY4AtotOCOvCD4C//8+I6gIOgL//zsjqwh2Ag==",
+              "supported": true,
+              "frequency": 38000,
+              "duty_cycle": "0.330000"
+            },
+            {
+              "name": "Fan_Mode",
+              "entry_type": "raw",
+              "protocol": null,
+              "encoding": "tuya_raw_base64",
+              "code": "HzsjhBE5Ap4GPAIWAjgCGQI/AhMCOwIWAjgCGQI1AhwCHzwCFQI5AhgCNgKgBjoCnQY9ApkGNwKhBjkCnQY9ApoGHzYCoQY5Ap4GPAKbBj8CmAY4Ap8GOwIWAjgCGgI+AhMCHzsCFgI4AhkCNQIdAjsCFQI5AhkCNQKhBjkCngY8ApoGHzYCoQY5Ap4GPAKbBjUCogY4Ap4GPAIWAjgCGQI/AhMCHzsCFgI4AhkCNQIcAjwCFQI5AhkCNQKhBjkCnQY9ApoGHTYCoQY5AtktOSOuCD8C//89I6oIOAL//0Ajpwg7Ag==",
+              "supported": true,
+              "frequency": 38000,
+              "duty_cycle": "0.330000"
+            },
+            {
+              "name": "Fan_Speed",
+              "entry_type": "raw",
+              "protocol": null,
+              "encoding": "tuya_raw_base64",
+              "code": "Hz4jgBE9ApsGNQIcAjwCFQI5AhkCNQIcAjwCFQI5AhgCHzYCHAI8AhQCOgKdBj0CmgY2AqEGOQKeBjwCtQYbArwGHx4CuQYhArYGJAKzBh0CugYgAhcCNwIaAj4CEwI7AhcCHzcCGgI+AhMCOwIWAjgCGgI0AqIGOAKfBjsCnAY+ApkGHzcCugYgArcGIwK0BhwCuwYfAhgCNgIcAjwCFQI5AhgCHzYCGwI9AhQCOgIYAjYCGwI9ApkGNwKgBjoCnQY9ApoGHTYCvAYeAtktNyOwCDwC//9BI6cIOwL//zwjqwg3Ag==",
+              "supported": true,
+              "frequency": 38000,
+              "duty_cycle": "0.330000"
+            },
+            {
+              "name": "Oscillate",
+              "entry_type": "raw",
+              "protocol": null,
+              "encoding": "tuya_raw_base64",
+              "code": "Hz0jgRE8ApwGPgITAjsCFwI3AhoCPgITAjsCFgI4AhoCHzQCHQI7AhYCOAKeBjwCmwY/ApgGOAK6BiACtwYjApoGHzYCoQY5Ap4GPAKbBjUCHAI8AhUCOQKeBjwCFQI5AhkCHzUCHAI8AhUCOQIZAjUCogY4Ap4GPAIVAjkCnwY7ApwGHz4CswYdAroGIAKdBj0CEwI7AhcCNwKgBjoCFwI3AhsCHz0CFAI6AhcCNwIaAj4CmQY3AqAGOgIXAjcCoAY6Ap0GHT0CtAYcAtstQCOoCDoC//88I6sINwL//zwjrAg2Ag==",
+              "supported": true,
+              "frequency": 38000,
+              "duty_cycle": "0.330000"
+            }
+          ],
+          "updated_at": "2026-07-11T15:51:48.440332+00:00"
+        }
+      ]
+    }
+  },
+  "devices": {
+    "IR Blaster (1)": {
+      "last_learned": {
+        "code": "BT4jnhEwAuATAQGnBuAVA8AB4Acn4AMBQBuAAQJmAjCgAUATwAMHTZo+I8sIMAI=",
+        "encoding": "tuya_raw_base64",
+        "learned_at": "2026-07-06T19:10:03.919047+00:00",
+        "source": "learned"
+      }
+    },
+    "IR Blaster (2)": {
+      "import_library": "SLAAPKAMER LAMP/FAN",
+      "last_learned": {
+        "code": "B1IjfhFeAjcCQAPgCwEEXgJ+BjfgFAMBNwLAI0AH4AEDQBeAA8ABwA9ABwM3An4G4AEDCUaaUiPICDcC///gAwcJXgL//1IjyAg3Ag==",
+        "encoding": "tuya_raw_base64",
+        "learned_at": "2026-07-11T06:33:16.745752+00:00",
+        "source": "learned"
+      }
+    }
+  },
+  "shared_codes": {
+    "SLAAPKAMER LAMP/FAN": [
+      {
+        "code_id": "slaapkamer_lamp_fan_fan_off",
+        "name": "FAN OFF",
+        "code": "B1IjfhFeAjcCQAPgCwEEXgJ+BjfgFAMBNwLAI0AH4AEDQBeAA8ABwA9ABwM3An4G4AEDCUaaUiPICDcC///gAwcJXgL//1IjyAg3Ag==",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "13a5b738ff764050b737502ba4e79ef9",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:33:16.745752+00:00",
+        "created_at": "2026-07-11T06:33:19.440685+00:00",
+        "updated_at": "2026-07-11T06:33:19.440685+00:00"
+      },
+      {
+        "code_id": "slaapkamer_lamp_fan_fan_speed_min",
+        "name": "FAN SPEED MIN",
+        "code": "BTojsBE8AuANAQJgAjwgAQGHBuAVA0ABQCPgAwHgBw9AAUATwANAAcALQAcJdpo6I7gIPAL//+ACBwIIPAI=",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "f158c64c48744a6386c83eaa9d788a4c",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:32:56.966395+00:00",
+        "created_at": "2026-07-11T06:33:02.039764+00:00",
+        "updated_at": "2026-07-11T06:33:02.039764+00:00"
+      },
+      {
+        "code_id": "slaapkamer_lamp_fan_fan_speed_plus",
+        "name": "FAN SPEED PLUS",
+        "code": "BUYjcRE/AuANAQJhAj8gAQF+BuAVA0ABwCNAAeADC+AHAUAbwAFAC8ADCT6aRiPYCD8C///gEgcCCD8C",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "e8d29fe2c6284fdbabd7eab86f04b1f2",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:32:32.955186+00:00",
+        "created_at": "2026-07-11T06:32:36.217711+00:00",
+        "updated_at": "2026-07-11T06:32:36.217711+00:00"
+      },
+      {
+        "code_id": "slaapkamer_lamp_fan_light_colder",
+        "name": "LIGHT COLDER",
+        "code": "BUUjqBEsAuATAQG3BuAVA8ABQCdAAUAHQAPgAwHAD8AHQAFAC8ADD3maRSPZCCwC//9FI9kILAI=",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "d3f105996b1b42e59aba74f4fd60cb0c",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:27:12.725524+00:00",
+        "created_at": "2026-07-11T06:27:13.935116+00:00",
+        "updated_at": "2026-07-11T06:27:13.935116+00:00"
+      },
+      {
+        "code_id": "slaapkamer_lamp_fan_light_off",
+        "name": "LIGHT OFF",
+        "code": "BUUj1hEsAuATAQGwBuAVA+ADAeADK+ADAcAXAmACLOAAAcATQAcJR5pFI9oILAL//+ASBwIILAI=",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "88ca6b2c6f63487c83f6615064689cfb",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:24:26.394960+00:00",
+        "created_at": "2026-07-11T06:24:30.286239+00:00",
+        "updated_at": "2026-07-11T06:24:30.286239+00:00"
+      },
+      {
+        "code_id": "slaapkamer_lamp_fan_light_on",
+        "name": "LIGHT ON",
+        "code": "BUsjhxFCAuATAQF6BuAVA0ABQCNAAUAHwAPgBwFAF+ADAUAPwAMJHZpLI7wIQgL//+AiBwIIQgI=",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "7c0225d57d174512b0929d3c4ac5b284",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:24:46.677941+00:00",
+        "created_at": "2026-07-11T06:24:50.663989+00:00",
+        "updated_at": "2026-07-11T06:24:50.663989+00:00"
+      },
+      {
+        "code_id": "slaapkamer_lamp_fan_light_warmer",
+        "name": "LIGHT WARMER",
+        "code": "BUYjixE1AuATAQGfBuAVA8AB4Acn4AMBQBvgBwFAE8ADCbiaRiO/CDUC///gCgcCCDUC",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "6627a13cec0e4c9a9a8e6c75dfa497f2",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:27:28.451553+00:00",
+        "created_at": "2026-07-11T06:27:30.188696+00:00",
+        "updated_at": "2026-07-11T06:27:30.188696+00:00"
+      },
+      {
+        "code_id": "slaapkamer_lamp_fan_rgb",
+        "name": "RGB",
+        "code": "BT4joBE5AuATAQGUBuAVA8ABQCdAAcAH4AMBwBPgAwdAC8ADCTSaPiO6CDkC///gCgcCCDkC",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "_TZ3290_ot6ewjvmejq5ekhl",
+        "model": "TS1201",
+        "record_uid": "ef03af15a50549f686fbe54cf41e3534",
+        "source": "learned",
+        "tags": [],
+        "learned_at": "2026-07-11T06:25:38.353749+00:00",
+        "created_at": "2026-07-11T06:25:41.328153+00:00",
+        "updated_at": "2026-07-11T06:25:41.328153+00:00"
+      }
+    ],
+    "ZUILVENTILATOR": [
+      {
+        "code_id": "zuilventilator_fan_mode",
+        "name": "Fan_Mode",
+        "code": "HzsjhBE5Ap4GPAIWAjgCGQI/AhMCOwIWAjgCGQI1AhwCHzwCFQI5AhgCNgKgBjoCnQY9ApkGNwKhBjkCnQY9ApoGHzYCoQY5Ap4GPAKbBj8CmAY4Ap8GOwIWAjgCGgI+AhMCHzsCFgI4AhkCNQIdAjsCFQI5AhkCNQKhBjkCngY8ApoGHzYCoQY5Ap4GPAKbBjUCogY4Ap4GPAIWAjgCGQI/AhMCHzsCFgI4AhkCNQIcAjwCFQI5AhkCNQKhBjkCnQY9ApoGHTYCoQY5AtktOSOuCD8C//89I6oIOAL//0Ajpwg7Ag==",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "main",
+        "model": "Ansio_Fan_30inch_Tower",
+        "record_uid": "ffd698ff5eb84027bb0b961c298bb594",
+        "source": "catalog:Lucaslhm/Flipper-IRDB / heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir/Ansio Fan 30inch Tower",
+        "tags": [],
+        "learned_at": null,
+        "created_at": "2026-07-11T15:57:22.703331+00:00",
+        "updated_at": "2026-07-11T16:08:44.699817+00:00"
+      },
+      {
+        "code_id": "zuilventilator_fan_speed",
+        "name": "Fan_Speed",
+        "code": "Hz4jgBE9ApsGNQIcAjwCFQI5AhkCNQIcAjwCFQI5AhgCHzYCHAI8AhQCOgKdBj0CmgY2AqEGOQKeBjwCtQYbArwGHx4CuQYhArYGJAKzBh0CugYgAhcCNwIaAj4CEwI7AhcCHzcCGgI+AhMCOwIWAjgCGgI0AqIGOAKfBjsCnAY+ApkGHzcCugYgArcGIwK0BhwCuwYfAhgCNgIcAjwCFQI5AhgCHzYCGwI9AhQCOgIYAjYCGwI9ApkGNwKgBjoCnQY9ApoGHTYCvAYeAtktNyOwCDwC//9BI6cIOwL//zwjqwg3Ag==",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "main",
+        "model": "Ansio_Fan_30inch_Tower",
+        "record_uid": "18a022866958459b94104a72db4ba13b",
+        "source": "catalog:Lucaslhm/Flipper-IRDB / heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir/Ansio Fan 30inch Tower",
+        "tags": [],
+        "learned_at": null,
+        "created_at": "2026-07-11T15:57:22.704269+00:00",
+        "updated_at": "2026-07-11T16:08:44.699817+00:00"
+      },
+      {
+        "code_id": "zuilventilator_oscillate",
+        "name": "Oscillate",
+        "code": "Hz0jgRE8ApwGPgITAjsCFwI3AhoCPgITAjsCFgI4AhoCHzQCHQI7AhYCOAKeBjwCmwY/ApgGOAK6BiACtwYjApoGHzYCoQY5Ap4GPAKbBjUCHAI8AhUCOQKeBjwCFQI5AhkCHzUCHAI8AhUCOQIZAjUCogY4Ap4GPAIVAjkCnwY7ApwGHz4CswYdAroGIAKdBj0CEwI7AhcCNwKgBjoCFwI3AhsCHz0CFAI6AhcCNwIaAj4CmQY3AqAGOgIXAjcCoAY6Ap0GHT0CtAYcAtstQCOoCDoC//88I6sINwL//zwjrAg2Ag==",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "main",
+        "model": "Ansio_Fan_30inch_Tower",
+        "record_uid": "3f2a96ecb502408bbfd4f78b5a5f4b5e",
+        "source": "catalog:Lucaslhm/Flipper-IRDB / heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir/Ansio Fan 30inch Tower",
+        "tags": [],
+        "learned_at": null,
+        "created_at": "2026-07-11T15:57:22.705023+00:00",
+        "updated_at": "2026-07-11T16:08:44.699817+00:00"
+      },
+      {
+        "code_id": "zuilventilator_power",
+        "name": "Power",
+        "code": "H0AjfRE2Ar0GHQIZAj8CEgI8AhYCOAIZAjUCHAI8AhUCHzkCGQI1AhwCPAKaBjYCoQY5ArgGIgKaBjYCoQY5Ap4GHzwCmwY1AqIGOAKeBjwCFQI5AhkCNQIcAjwCFQI5AhgCHzYCHAI8AhQCOgIYAjYCoAY6ApwGPgKzBh0CoAY6Ap0GHz0CmQY3AqAGOgKdBj0CFAI6AhgCNgIbAj0CFAI6AhcCHzcCGgI+AhMCOwIWAjgCnwY7ApsGNQK9Bh0CnwY7ApwGHT4CmAY4AtotOSOvCD4C//8/I6gIOgL//zwjqwg3Ag==",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "main",
+        "model": "Ansio_Fan_30inch_Tower",
+        "record_uid": "f0431ed5781244d3928ca124cc6618e8",
+        "source": "catalog:Lucaslhm/Flipper-IRDB / heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir/Ansio Fan 30inch Tower",
+        "tags": [],
+        "learned_at": null,
+        "created_at": "2026-07-11T15:57:22.699069+00:00",
+        "updated_at": "2026-07-11T16:08:44.699817+00:00"
+      },
+      {
+        "code_id": "zuilventilator_timer",
+        "name": "Timer",
+        "code": "H0EjfRFAApcGOQI0AiQCEwI7AhYCOAIZAjUCHAI8AhUCHzkCGAI2AhsCPQKZBjcCoAY6Ap0GPQKZBjcCoAY6Ap0GHz0CmgY2AqEGOQKeBjwCMAIeAp4GPAIwAh4CGQI1AhwCHzwCFQI5AhgCNgIbAj0CmQY3AjUCIwKZBjcCoAY6ApwGHz4CmQY3AqAGOgKdBj0CLwIfAp0GPQIvAh8CGAI2AhsCHz0CFAI6AhcCNwIaAj4CmAY4AjQCJAKYBjgCnwY8ApsGHT8CmAY4AtotOCOvCD4C//8+I6gIOgL//zsjqwh2Ag==",
+        "device_type": "generic",
+        "encoding": "tuya_raw_base64",
+        "manufacturer": "main",
+        "model": "Ansio_Fan_30inch_Tower",
+        "record_uid": "4cde9907219a449aba00dc45aa581121",
+        "source": "catalog:Lucaslhm/Flipper-IRDB / heads/main/Fans/Ansio/Ansio_Fan_30inch_Tower.ir/Ansio Fan 30inch Tower",
+        "tags": [],
+        "learned_at": null,
+        "created_at": "2026-07-11T15:57:22.700316+00:00",
+        "updated_at": "2026-07-11T16:08:44.699817+00:00"
+      }
+    ]
+  },
+  "device_codes": {}
+}
