@@ -1,4 +1,4 @@
-const PANEL_CSS_URL = "/zigbee2otterir_static/otter-ir-panel.css?v=1.3.48";
+const PANEL_CSS_URL = "/zigbee2otterir_static/otter-ir-panel.css?v=1.3.49";
 
 class OtterIRPanel extends HTMLElement {
   constructor() {
@@ -25,6 +25,8 @@ class OtterIRPanel extends HTMLElement {
     this._loadToken = 0;
     this._resourcesActive = false;
     this._focusOutTimer = null;
+    this._learnPollTimer = null;
+    this._learnPollUntil = 0;
     this._learnStatus = {};
     this._saveStatus = {};
     this._state = {
@@ -401,6 +403,7 @@ class OtterIRPanel extends HTMLElement {
       window.clearTimeout(this._focusOutTimer);
       this._focusOutTimer = null;
     }
+    this._stopLearnPolling();
     for (const timer of this._toastTimers.values()) {
       window.clearTimeout(timer);
     }
@@ -651,6 +654,52 @@ class OtterIRPanel extends HTMLElement {
         lastLearnedAt: learnedAt || status.lastLearnedAt || "",
       };
     }
+    if (!this._hasListeningDevice()) {
+      this._stopLearnPolling();
+    }
+  }
+
+  _hasListeningDevice() {
+    return Object.values(this._learnStatus).some(
+      (status) => status?.state === "listening"
+    );
+  }
+
+  _startLearnPolling() {
+    this._learnPollUntil = Date.now() + 30000;
+    if (this._learnPollTimer) {
+      return;
+    }
+    this._scheduleLearnPoll(1000);
+  }
+
+  _scheduleLearnPoll(delay) {
+    this._learnPollTimer = window.setTimeout(async () => {
+      this._learnPollTimer = null;
+      if (
+        !this._isActiveView() ||
+        !this._hasListeningDevice() ||
+        Date.now() > this._learnPollUntil
+      ) {
+        this._stopLearnPolling();
+        return;
+      }
+
+      await this._load();
+      if (this._hasListeningDevice()) {
+        this._scheduleLearnPoll(1500);
+      } else {
+        this._stopLearnPolling();
+      }
+    }, delay);
+  }
+
+  _stopLearnPolling() {
+    if (this._learnPollTimer) {
+      window.clearTimeout(this._learnPollTimer);
+      this._learnPollTimer = null;
+    }
+    this._learnPollUntil = 0;
   }
 
   _learnStatusForDevice(device) {
@@ -746,6 +795,7 @@ class OtterIRPanel extends HTMLElement {
           text: "Listening...",
           lastLearnedAt: currentLearnedAt,
         };
+        this._startLearnPolling();
         this.render();
         this._showToast("Learning mode started.", "info");
         await this._load();

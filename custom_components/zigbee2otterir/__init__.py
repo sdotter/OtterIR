@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 from pathlib import Path
+from time import monotonic
 from typing import Any
 from urllib.parse import urlparse
 
@@ -103,6 +104,8 @@ from .mqtt_helpers import (
 from .ws_api import async_register_ws_api
 
 _LOGGER = logging.getLogger(__name__)
+LEARNING_REARM_DELAY_SECONDS = 0.25
+LEARNING_DUPLICATE_GRACE_SECONDS = 1.0
 
 
 def _target_fields() -> dict[vol.Marker, object]:
@@ -274,6 +277,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "entity_id_bases": dict(store.data["entity_id_bases"]),
         "import_libraries": dict(store.data["import_libraries"]),
         "learned": dict(store.last_learned),
+        "learning_sessions": {},
         "pending_names": dict(store.data["pending_names"]),
         "smartir_sources": dict(store.data["smartir_sources"]),
         "store": store,
@@ -353,11 +357,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         learned_code = extract_ir_code(learned_code)
         current_record = entry_data["learned"].get(friendly_name)
+        learning_session = entry_data["learning_sessions"].get(friendly_name)
         if current_record and current_record[ATTR_CODE] == learned_code:
-            return
+            if not learning_session:
+                return
+            started_at = float(learning_session.get("started_at") or 0)
+            if monotonic() - started_at < LEARNING_DUPLICATE_GRACE_SECONDS:
+                return
 
         record = build_learned_record(learned_code)
         entry_data["learned"][friendly_name] = record
+        entry_data["learning_sessions"].pop(friendly_name, None)
         async_dispatcher_send(
             hass,
             SIGNAL_IR_CODE_LEARNED.format(entry.entry_id),
@@ -449,6 +459,26 @@ def _infrared_platform_available() -> bool:
     return find_spec("homeassistant.components.infrared") is not None
 
 
+async def _async_publish_learning_mode(
+    hass: HomeAssistant,
+    topic: str,
+    enabled: bool,
+) -> None:
+    """Publish the IR learning toggle with reliable MQTT delivery settings."""
+
+    await hass.services.async_call(
+        "mqtt",
+        "publish",
+        {
+            "topic": topic,
+            "payload": build_learning_payload(enabled),
+            "qos": 1,
+            "retain": False,
+        },
+        blocking=True,
+    )
+
+
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload a config entry after options change."""
 
@@ -530,15 +560,18 @@ def _async_register_services(hass: HomeAssistant) -> None:
             entity_id=call.data.get(CONF_ENTITY_ID),
         )
         topic = build_topic(friendly_name, base_topic=entry_data["base_topic"])
-        await hass.services.async_call(
-            "mqtt",
-            "publish",
-            {
-                "topic": topic,
-                "payload": build_learning_payload(True),
-            },
-            blocking=True,
-        )
+        entry_data["learning_sessions"][friendly_name] = {"started_at": monotonic()}
+
+        try:
+            await _async_publish_learning_mode(hass, topic, False)
+            await asyncio.sleep(LEARNING_REARM_DELAY_SECONDS)
+            entry_data["learning_sessions"][friendly_name] = {
+                "started_at": monotonic()
+            }
+            await _async_publish_learning_mode(hass, topic, True)
+        except Exception:
+            entry_data["learning_sessions"].pop(friendly_name, None)
+            raise
 
     async def async_save_learned_code(call: ServiceCall) -> None:
         friendly_name, device, entry_data = _resolve_target_device(
