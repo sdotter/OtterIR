@@ -12,6 +12,20 @@ It keeps the full IR workflow inside Home Assistant:
 - import SmartIR JSON files that use Broadlink IR payloads
 - browse and selectively import larger `.ir` catalogs
 
+## Screenshots
+
+### Dashboard and IR learning
+
+![OtterIR dashboard showing an IR blaster, saved commands, catalog imports, and learning mode](.github/readme/otterir-overview.png)
+
+### Catalogs and command library
+
+![OtterIR catalog import and saved command library](.github/readme/otterir-library.png)
+
+### Imported remote commands
+
+![OtterIR library with imported fan commands ready to send or edit](.github/readme/otterir-import.png)
+
 ## What This Project Is
 
 OtterIR is a custom integration with a built-in Home Assistant panel.
